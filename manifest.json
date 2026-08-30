@@ -1,0 +1,1 @@
+{"name":"岁时 · 个人日历","short_name":"岁时","start_url":"./","display":"standalone","background_color":"#f5f5f7","theme_color":"#df2c3f","lang":"zh-CN","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}],"shortcuts":[{"name":"今天","url":"./#today"},{"name":"我的日子","url":"./#events"}]}
