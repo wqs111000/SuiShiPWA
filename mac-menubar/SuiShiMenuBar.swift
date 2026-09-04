@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         statusItem.button?.layer?.masksToBounds = true
         statusItem.button?.target = self
         statusItem.button?.action = #selector(togglePopover)
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         updateTitle()
         popover.behavior = .transient
         popover.delegate = self
@@ -34,9 +35,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     @objc private func togglePopover() {
         guard let button = statusItem.button else { return }
+        if NSApp.currentEvent?.type == .rightMouseUp {
+            let menu = NSMenu()
+            menu.addItem(NSMenuItem(title: "打开岁时日历", action: #selector(openCalendar), keyEquivalent: "o"))
+            menu.addItem(.separator())
+            menu.addItem(NSMenuItem(title: "退出岁时", action: #selector(quitApp), keyEquivalent: "q"))
+            menu.items.forEach { $0.target = self }
+            menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY + 4), in: button)
+            return
+        }
         if popover.isShown { popover.performClose(nil) }
         else { popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY); popover.contentViewController?.view.window?.makeKey() }
     }
+
+    @objc private func openCalendar() {
+        guard let button = statusItem.button else { return }
+        if !popover.isShown { popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY) }
+    }
+
+    @objc private func quitApp() { NSApp.terminate(nil) }
 
     private func updateTitle() {
         let f = DateFormatter(); f.locale = Locale(identifier: "zh_CN"); f.dateFormat = "d"
