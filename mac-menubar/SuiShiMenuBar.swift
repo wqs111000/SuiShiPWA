@@ -7,13 +7,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
-        statusItem = NSStatusBar.system.statusItem(withLength: 28)
-        statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 13, weight: .medium)
+        statusItem = NSStatusBar.system.statusItem(withLength: 30)
+        statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
         statusItem.button?.alignment = .center
         statusItem.button?.wantsLayer = true
-        statusItem.button?.layer?.borderWidth = 1
-        statusItem.button?.layer?.borderColor = NSColor.labelColor.withAlphaComponent(0.85).cgColor
-        statusItem.button?.layer?.cornerRadius = 4
+        statusItem.button?.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.72).cgColor
+        statusItem.button?.layer?.borderWidth = 0.8
+        statusItem.button?.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.9).cgColor
+        statusItem.button?.layer?.cornerRadius = 6
+        statusItem.button?.layer?.masksToBounds = true
         statusItem.button?.target = self
         statusItem.button?.action = #selector(togglePopover)
         updateTitle()
