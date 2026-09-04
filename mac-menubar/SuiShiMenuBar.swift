@@ -1,7 +1,7 @@
 import Cocoa
 import WebKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, WKScriptMessageHandler {
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
 
@@ -18,7 +18,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         statusItem.button?.layer?.masksToBounds = true
         statusItem.button?.target = self
         statusItem.button?.action = #selector(togglePopover)
-        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        // NSStatusBarButton 默认只把左键作为触发动作；显式监听右键按下，
+        // 避免部分 macOS 版本在右键抬起时不再转发 action。
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseDown])
         updateTitle()
         popover.behavior = .transient
         popover.delegate = self
@@ -26,23 +28,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         let container = NSView()
         container.wantsLayer = true
         container.layer?.backgroundColor = NSColor.clear.cgColor
-        let web = WKWebView(frame: .zero)
+        let contentController = WKUserContentController()
+        contentController.add(self, name: "quitApp")
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController = contentController
+        let web = WKWebView(frame: .zero, configuration: configuration)
         web.setValue(false, forKey: "drawsBackground")
         web.translatesAutoresizingMaskIntoConstraints = false
-        let quit = NSButton(title: "退出岁时", target: self, action: #selector(quitApp))
-        quit.bezelStyle = .recessed
-        quit.controlSize = .small
-        quit.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(web)
-        container.addSubview(quit)
         NSLayoutConstraint.activate([
             web.topAnchor.constraint(equalTo: container.topAnchor),
             web.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             web.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            web.bottomAnchor.constraint(equalTo: quit.topAnchor, constant: -8),
-            quit.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
-            quit.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
-            quit.heightAnchor.constraint(equalToConstant: 24)
+            web.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
         popover.contentViewController = NSViewController()
         popover.contentViewController?.view = container
@@ -54,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     @objc private func togglePopover() {
         guard let button = statusItem.button else { return }
-        if NSApp.currentEvent?.type == .rightMouseUp {
+        if NSApp.currentEvent?.type == .rightMouseDown {
             let menu = NSMenu()
             menu.addItem(NSMenuItem(title: "打开岁时日历", action: #selector(openCalendar), keyEquivalent: "o"))
             menu.addItem(.separator())
@@ -73,6 +71,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     @objc private func quitApp() { NSApp.terminate(nil) }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "quitApp" { quitApp() }
+    }
 
     private func updateTitle() {
         let f = DateFormatter(); f.locale = Locale(identifier: "zh_CN"); f.dateFormat = "d"
