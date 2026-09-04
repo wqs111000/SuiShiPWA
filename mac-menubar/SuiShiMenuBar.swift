@@ -7,8 +7,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        statusItem = NSStatusBar.system.statusItem(withLength: 28)
+        statusItem.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 13, weight: .medium)
+        statusItem.button?.alignment = .center
+        statusItem.button?.wantsLayer = true
+        statusItem.button?.layer?.borderWidth = 1
+        statusItem.button?.layer?.borderColor = NSColor.labelColor.withAlphaComponent(0.85).cgColor
+        statusItem.button?.layer?.cornerRadius = 4
         statusItem.button?.target = self
         statusItem.button?.action = #selector(togglePopover)
         updateTitle()
@@ -32,7 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     private func updateTitle() {
-        let f = DateFormatter(); f.locale = Locale(identifier: "zh_CN"); f.dateFormat = "d日"
+        let f = DateFormatter(); f.locale = Locale(identifier: "zh_CN"); f.dateFormat = "d"
         statusItem?.button?.title = f.string(from: Date())
         statusItem?.button?.toolTip = "岁时 · 点击打开日历"
     }
