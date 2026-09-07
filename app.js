@@ -1,5 +1,5 @@
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const today = new Date();
+let today = new Date();
 const pad = n => String(n).padStart(2, '0');
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const dateFrom = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -70,4 +70,16 @@ $('#eventForm').onsubmit=ev=>{ev.preventDefault();const id=$('#eventId').value||
 function switchPage(id){$$('.page').forEach(p=>p.classList.toggle('active',p.id===id));$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.page===id));document.body.classList.toggle('calendar-open',id==='calendarPage');if(id==='calendarPage')renderCalendar();if(id==='eventsPage')renderEvents();if(id==='todayPage')renderToday()}
 const moveMonth = step => { const next=new Date(cursor.getFullYear(),cursor.getMonth()+step,1),lastDay=new Date(next.getFullYear(),next.getMonth()+1,0).getDate(); cursor=next; selected=new Date(next.getFullYear(),next.getMonth(),Math.min(selected.getDate(),lastDay)); renderCalendar(); };
 $$('.tab').forEach(t=>t.onclick=()=>switchPage(t.dataset.page)); $('#addBtn').onclick=()=>openEditor(); window.openEditor=openEditor; window.openEditorForSelected=()=>openEditor(undefined,iso(selected)); window.switchPage=switchPage; $('#prevMonth').onclick=()=>moveMonth(-1); $('#nextMonth').onclick=()=>moveMonth(1); $('#monthPicker').onchange=e=>{const [y,m]=e.target.value.split('-').map(Number);if(y&&m){cursor=new Date(y,m-1,1);selected=new Date(y,m-1,1);renderCalendar()}}; $('#calendarToday').onclick=()=>{cursor=new Date(today.getFullYear(),today.getMonth(),1);selected=new Date(today);renderCalendar()}; $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('suishi-dark',document.body.classList.contains('dark'))}; if(localStorage.getItem('suishi-dark')==='true')document.body.classList.add('dark'); $('#notifyBtn').onclick=async()=>{if(!('Notification'in window)){$('#notifyStatus').textContent='当前浏览器不支持通知';return}const p=await Notification.requestPermission();$('#notifyStatus').textContent=p==='granted'?'通知已开启':'未获得通知权限'};
-if($('#quitBtn'))$('#quitBtn').onclick=()=>{if(window.webkit?.messageHandlers?.quitApp)window.webkit.messageHandlers.quitApp.postMessage('quit');else alert('请关闭当前页面以退出');}; if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{}); renderToday();
+if($('#quitBtn'))$('#quitBtn').onclick=()=>{if(window.webkit?.messageHandlers?.quitApp)window.webkit.messageHandlers.quitApp.postMessage('quit');else alert('请关闭当前页面以退出');};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+renderToday();
+let renderedDay = iso(today);
+setInterval(()=>{
+  const now = new Date(), day = iso(now);
+  if(day === renderedDay) return;
+  today = now;
+  renderedDay = day;
+  renderToday();
+  if(document.body.classList.contains('calendar-open')) renderCalendar();
+  if($('#eventsPage')?.classList.contains('active')) renderEvents();
+}, 30000);
