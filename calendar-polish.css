@@ -9,6 +9,9 @@
 .calendar-page .day { position: relative; overflow: hidden; padding-top: 6px; padding-bottom: 2px; }
 .calendar-page .day-lunar { line-height: 16px; }
 .calendar-page .day-mark { line-height: 12px; }
+.calendar-page .day.selected .day-lunar { color: #777; }
+.calendar-page .day.selected .day-mark { color: #d9253b; }
+.calendar-page .day.selected .day-mark.term-mark { color: #299765; }
 
 .selected-date-head > div { min-width: 0; }
 .selected-date-head > div > span {
