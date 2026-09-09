@@ -5,6 +5,11 @@
   gap: 14px;
 }
 
+/* Keep the selected outline anchored to its own cell and fit lunar/term labels. */
+.calendar-page .day { position: relative; overflow: hidden; padding-top: 6px; padding-bottom: 2px; }
+.calendar-page .day-lunar { line-height: 16px; }
+.calendar-page .day-mark { line-height: 12px; }
+
 .selected-date-head > div { min-width: 0; }
 .selected-date-head > div > span {
   display: block;

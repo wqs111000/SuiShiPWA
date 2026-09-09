@@ -77,8 +77,11 @@ let renderedDay = iso(today);
 setInterval(()=>{
   const now = new Date(), day = iso(now);
   if(day === renderedDay) return;
+  const previousToday = today;
   today = now;
   renderedDay = day;
+  // 如果用户没有主动查看其他日期，跨天时让红框继续跟随今天。
+  if(sameDay(selected, previousToday)) selected = new Date(now);
   renderToday();
   if(document.body.classList.contains('calendar-open')) renderCalendar();
   if($('#eventsPage')?.classList.contains('active')) renderEvents();
