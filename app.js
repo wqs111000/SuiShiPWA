@@ -86,3 +86,22 @@ setInterval(()=>{
   if(document.body.classList.contains('calendar-open')) renderCalendar();
   if($('#eventsPage')?.classList.contains('active')) renderEvents();
 }, 30000);
+
+const monthDialog = $('#monthDialog'), monthYear = $('#monthYear'), monthNumber = $('#monthNumber');
+if(monthDialog && monthYear && monthNumber){
+  const currentYear = new Date().getFullYear();
+  for(let y=currentYear-10;y<=currentYear+10;y++) monthYear.add(new Option(`${y}年`, y));
+  for(let m=1;m<=12;m++) monthNumber.add(new Option(`${m}月`, pad(m)));
+  $('#monthPickerTrigger').onclick=()=>{
+    monthYear.value=String(cursor.getFullYear());
+    monthNumber.value=pad(cursor.getMonth()+1);
+    monthDialog.showModal();
+  };
+  $('#monthForm').addEventListener('submit',()=>{
+    const y=Number(monthYear.value), m=Number(monthNumber.value);
+    if(!y||!m)return;
+    cursor=new Date(y,m-1,1);
+    selected=new Date(y,m-1,1);
+    renderCalendar();
+  });
+}
